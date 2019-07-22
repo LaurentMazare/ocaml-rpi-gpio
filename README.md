@@ -1,2 +1,2 @@
 # ocaml-rpi-gpio
-ocaml api for raspberry pi gpio access
+Ocaml api for raspberry pi gpio access based on [raspberry-gpio-python](https://sourceforge.net/projects/raspberry-gpio-python/).
