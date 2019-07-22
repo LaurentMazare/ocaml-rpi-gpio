@@ -16,21 +16,27 @@
 #define SETUP_CPUINFO_FAIL 4
 #define SETUP_NOT_RPI_FAIL 5
 
+int module_setup = 0;
+
 value ml_setup(value unit) {
   CAMLparam1(unit);
-  int status = setup();
-  if (status == SETUP_DEVMEM_FAIL)
-    caml_failwith("No access to /dev/mem");
-  else if (status == SETUP_MALLOC_FAIL)
-    caml_failwith("Malloc failed");
-  else if (status == SETUP_MMAP_FAIL)
-    caml_failwith("Mmap of GPIO registers failed");
-  else if (status == SETUP_CPUINFO_FAIL)
-    caml_failwith("Unable to open /proc/cpuinfo");
-  else if (status == SETUP_NOT_RPI_FAIL)
-    caml_failwith("Not running on a RPi");
-  else if (status != SETUP_OK)
-    caml_failwith("unexpected error during setup");
+  if (module_setup == 0) {
+    int status = setup();
+    if (status == SETUP_DEVMEM_FAIL)
+      caml_failwith("No access to /dev/mem");
+    else if (status == SETUP_MALLOC_FAIL)
+      caml_failwith("Malloc failed");
+    else if (status == SETUP_MMAP_FAIL)
+      caml_failwith("Mmap of GPIO registers failed");
+    else if (status == SETUP_CPUINFO_FAIL)
+      caml_failwith("Unable to open /proc/cpuinfo");
+    else if (status == SETUP_NOT_RPI_FAIL)
+      caml_failwith("Not running on a RPi");
+    else if (status == SETUP_OK)
+      module_setup = 1;
+    else
+      caml_failwith("unexpected error during setup");
+  }
   CAMLreturn(Val_unit);
 }
 
