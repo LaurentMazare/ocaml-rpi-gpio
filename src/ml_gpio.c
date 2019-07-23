@@ -8,6 +8,7 @@
 #include <caml/fail.h>
 
 #include "c_gpio.h"
+#include "cpuinfo.h"
 
 #define SETUP_OK           0
 #define SETUP_DEVMEM_FAIL  1
@@ -68,4 +69,20 @@ value ml_gpio_function(value gpio) {
   CAMLparam1(gpio);
   int r = gpio_function(Int_val(gpio));
   CAMLreturn(Val_int(r));
+}
+
+value ml_get_rpi_info(value unit) {
+  CAMLparam1(unit);
+  rpi_info rpi_info;
+  int res = get_rpi_info(&rpi_info);
+  if (res != 0) caml_failwith("get_rpi_info failed");
+
+  CAMLlocal1(out);
+  out = caml_alloc_tuple(5);
+  Store_field(out, 0, Val_int(rpi_info.p1_revision));
+  Store_field(out, 1, caml_copy_string(rpi_info.ram));
+  Store_field(out, 2, caml_copy_string(rpi_info.manufacturer));
+  Store_field(out, 3, caml_copy_string(rpi_info.processor));
+  Store_field(out, 4, caml_copy_string(rpi_info.type));
+  CAMLreturn(out);
 }
