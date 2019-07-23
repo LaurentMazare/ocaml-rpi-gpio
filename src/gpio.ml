@@ -162,6 +162,7 @@ end
 type t = int
 
 let create ~channel ~mode =
+  Gpio_bindings.setup ();
   let rpi_info = Rpi_info.create () in
   let invalid_channel () = Printf.failwithf "invalid channel %d" channel () in
   let valid_channel =
@@ -177,3 +178,20 @@ let create ~channel ~mode =
     let channels = Rpi_info.pin_to_gpio rpi_info in
     let channel = channels.(channel) in
     if channel = -1 then invalid_channel () else channel
+
+let setup t direction pud =
+  let pud =
+    match pud with
+    | `off -> 0
+    | `down -> 1
+    | `up -> 2
+  in
+  let direction =
+    match direction with
+    | `input -> 1
+    | `output -> 0
+  in
+  Gpio_bindings.setup_gpio t direction pud
+
+let input t = Gpio_bindings.input_gpio t
+let output t v = Gpio_bindings.output_gpio t v
