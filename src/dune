@@ -1,6 +1,6 @@
 (library
   (name rpi_gpio)
   (public_name rpi-gpio)
-  (c_names cpuinfo c_gpio ml_gpio)
+  (c_names soft_pwm cpuinfo c_gpio ml_gpio)
   (c_library_flags :standard)
   (libraries base))
