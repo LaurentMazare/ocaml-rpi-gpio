@@ -195,3 +195,12 @@ let setup t direction pud =
 
 let input t = Gpio_bindings.input_gpio t
 let output t v = Gpio_bindings.output_gpio t v
+
+type pwm = int
+
+let pwm_exists t = Gpio_bindings.pwm_exists t <> 0
+
+let with_pwm t ~f =
+  if pwm_exists t then failwith "a pwm already exists on this channel";
+  Gpio_bindings.pwm_start t;
+  Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> Gpio_bindings.pwm_stop t)
