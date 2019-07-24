@@ -9,6 +9,7 @@
 
 #include "c_gpio.h"
 #include "cpuinfo.h"
+#include "soft_pwm.h"
 
 #define SETUP_OK           0
 #define SETUP_DEVMEM_FAIL  1
@@ -85,4 +86,34 @@ value ml_get_rpi_info(value unit) {
   Store_field(out, 3, caml_copy_string(rpi_info.processor));
   Store_field(out, 4, caml_copy_string(rpi_info.type));
   CAMLreturn(out);
+}
+
+value ml_pwm_start(value gpio) {
+  CAMLparam1(gpio);
+  pwm_start(Val_int(gpio));
+  CAMLreturn(Val_unit);
+}
+
+value ml_pwm_stop(value gpio) {
+  CAMLparam1(gpio);
+  pwm_stop(Val_int(gpio));
+  CAMLreturn(Val_unit);
+}
+
+value ml_pwm_exists(value gpio) {
+  CAMLparam1(gpio);
+  int r = pwm_exists(Val_int(gpio));
+  CAMLreturn(Val_int(r));
+}
+
+value ml_pwm_set_duty_cycle(value gpio, value dutycycle) {
+  CAMLparam2(gpio, dutycycle);
+  pwm_set_duty_cycle(Val_int(gpio), Double_val(dutycycle));
+  CAMLreturn(Val_unit);
+}
+
+value ml_pwm_set_frequency(value gpio, value freq) {
+  CAMLparam2(gpio, freq);
+  pwm_set_frequency(Val_int(gpio), Double_val(freq));
+  CAMLreturn(Val_unit);
 }
