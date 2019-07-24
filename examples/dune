@@ -1,0 +1,3 @@
+(executables
+  (names awr)
+  (libraries base rpi_gpio))
