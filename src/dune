@@ -3,4 +3,4 @@
   (public_name rpi-gpio)
   (c_names soft_pwm cpuinfo c_gpio ml_gpio)
   (c_library_flags :standard -lpthread)
-  (libraries base))
+  (libraries base stdio))

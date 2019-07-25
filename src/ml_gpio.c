@@ -90,19 +90,19 @@ value ml_get_rpi_info(value unit) {
 
 value ml_pwm_start(value gpio) {
   CAMLparam1(gpio);
-  pwm_start(Val_int(gpio));
+  pwm_start(Int_val(gpio));
   CAMLreturn(Val_unit);
 }
 
 value ml_pwm_stop(value gpio) {
   CAMLparam1(gpio);
-  pwm_stop(Val_int(gpio));
+  pwm_stop(Int_val(gpio));
   CAMLreturn(Val_unit);
 }
 
 value ml_pwm_exists(value gpio) {
   CAMLparam1(gpio);
-  int r = pwm_exists(Val_int(gpio));
+  int r = pwm_exists(Int_val(gpio));
   CAMLreturn(Val_int(r));
 }
 
@@ -111,7 +111,7 @@ value ml_pwm_set_duty_cycle(value gpio, value dutycycle) {
   double d = Double_val(dutycycle);
   if (d < 0) caml_failwith("Negative duty cycle.");
   if (d > 100) caml_failwith("Duty cycle greater than 100.");
-  pwm_set_duty_cycle(Val_int(gpio), d);
+  pwm_set_duty_cycle(Int_val(gpio), d);
   CAMLreturn(Val_unit);
 }
 
@@ -119,6 +119,6 @@ value ml_pwm_set_frequency(value gpio, value freq) {
   CAMLparam2(gpio, freq);
   double f = Double_val(freq);
   if (f <= 0) caml_failwith("Non-positive frequency.");
-  pwm_set_frequency(Val_int(gpio), f);
+  pwm_set_frequency(Int_val(gpio), f);
   CAMLreturn(Val_unit);
 }
