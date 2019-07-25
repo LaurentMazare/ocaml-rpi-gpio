@@ -77,15 +77,15 @@ end = struct
       t
 
     let forward t ~speed =
-      Gpio.output t.pin1 0;
-      Gpio.output t.pin2 1;
+      Gpio.output t.pin1 1;
+      Gpio.output t.pin2 0;
       Gpio.pwm_set_duty_cycle t.pwm ~duty_cycle:100.0;
       Gpio.pwm_start t.pwm;
       Gpio.pwm_set_duty_cycle t.pwm ~duty_cycle:speed
 
     let backward t ~speed =
-      Gpio.output t.pin1 1;
-      Gpio.output t.pin2 0;
+      Gpio.output t.pin1 0;
+      Gpio.output t.pin2 1;
       Gpio.pwm_set_duty_cycle t.pwm ~duty_cycle:100.0;
       Gpio.pwm_start t.pwm;
       Gpio.pwm_set_duty_cycle t.pwm ~duty_cycle:speed
@@ -123,8 +123,8 @@ let () =
   match mode with
   | `move ->
     let motors = Motors.create () in
-    Motors.move motors ~speed_a:50.0 ~speed_b:50.0;
-    Unix.sleepf 1.;
+    Motors.move motors ~speed_a:100.0 ~speed_b:100.0;
+    Unix.sleepf 3.;
     Motors.stop motors
   | `ultra ->
     let ultra = Ultrasonic.create () in
