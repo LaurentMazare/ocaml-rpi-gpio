@@ -108,12 +108,17 @@ value ml_pwm_exists(value gpio) {
 
 value ml_pwm_set_duty_cycle(value gpio, value dutycycle) {
   CAMLparam2(gpio, dutycycle);
-  pwm_set_duty_cycle(Val_int(gpio), Double_val(dutycycle));
+  double d = Double_val(dutycycle);
+  if (d < 0) caml_failwith("Negative duty cycle.");
+  if (d > 100) caml_failwith("Duty cycle greater than 100.");
+  pwm_set_duty_cycle(Val_int(gpio), d);
   CAMLreturn(Val_unit);
 }
 
 value ml_pwm_set_frequency(value gpio, value freq) {
   CAMLparam2(gpio, freq);
-  pwm_set_frequency(Val_int(gpio), Double_val(freq));
+  double f = Double_val(freq);
+  if (f <= 0) caml_failwith("Non-positive frequency.");
+  pwm_set_frequency(Val_int(gpio), f);
   CAMLreturn(Val_unit);
 }

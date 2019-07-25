@@ -204,3 +204,12 @@ let with_pwm t ~f =
   if pwm_exists t then failwith "a pwm already exists on this channel";
   Gpio_bindings.pwm_start t;
   Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> Gpio_bindings.pwm_stop t)
+
+let pwm_init t ~frequency =
+  Gpio_bindings.pwm_set_frequency t frequency;
+  t
+
+let pwm_start = Gpio_bindings.pwm_start
+let pwm_set_duty_cycle t ~duty_cycle = Gpio_bindings.pwm_set_duty_cycle t duty_cycle
+let pwm_set_frequency t ~frequency = Gpio_bindings.pwm_set_frequency t frequency
+let pwm_stop t = Gpio_bindings.pwm_stop t
