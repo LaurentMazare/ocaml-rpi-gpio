@@ -117,11 +117,33 @@ end = struct
     Motor.stop t.motor_b
 end
 
-let mode = `move
+let navigate () =
+  let motors = Motors.create () in
+  let ultra = Ultrasonic.create () in
+  let stopped = ref 0 in
+  while !stopped < 10 do
+    Unix.sleepf 0.1;
+    let d = Ultrasonic.get ultra in
+    let speed_a, speed_b =
+      if Float.(d < 0.2)
+      then (
+        Int.incr stopped;
+        0., 0.)
+      else if Float.(d < 0.6)
+      then 70., -70.
+      else 100., 100.
+    in
+    Motors.move motors ~speed_a ~speed_b
+  done;
+  Ultrasonic.close ultra;
+  Motors.stop motors
+
+let mode = `navigate
 
 let () =
   match mode with
-  | `move ->
+  | `navigate -> navigate ()
+  | `move_forward ->
     let motors = Motors.create () in
     Motors.move motors ~speed_a:100.0 ~speed_b:100.0;
     Unix.sleepf 3.;
