@@ -124,8 +124,9 @@ let navigate () =
   while !stopped < 10 do
     Unix.sleepf 0.1;
     let d = Ultrasonic.get ultra in
+    Stdio.printf "%f\n%!" d;
     let speed_a, speed_b =
-      if Float.(d < 0.2)
+      if Float.(d < 0.1)
       then (
         Int.incr stopped;
         0., 0.)
