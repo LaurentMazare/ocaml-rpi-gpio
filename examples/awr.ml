@@ -10,16 +10,13 @@ module Ultrasonic : sig
   val close : t -> unit
 end = struct
   type t =
-    { tr : Gpio.t
-    ; ec : Gpio.t
+    { tr : [ `output ] Gpio.t
+    ; ec : [ `input ] Gpio.t
     }
 
   let create () =
-    let tr = Gpio.create ~channel:23 ~mode:`board in
-    let ec = Gpio.create ~channel:24 ~mode:`board in
-    Gpio.output tr 0;
-    Gpio.setup tr `output `off;
-    Gpio.setup ec `input `off;
+    let tr = Gpio.create_output ~channel:23 ~mode:`board in
+    let ec = Gpio.create_input ~channel:24 ~mode:`board in
     { tr; ec }
 
   let rec loop_until ~f = if f () then () else loop_until ~f
@@ -35,8 +32,8 @@ end = struct
     (stop_time -. start_time) *. 340. /. 2.
 
   let close t =
-    Gpio.setup t.tr `input `off;
-    Gpio.setup t.ec `input `off
+    Gpio.close t.tr;
+    Gpio.close t.ec
 end
 
 module Motors : sig
@@ -44,17 +41,17 @@ module Motors : sig
 
   val create : unit -> t
   val move : t -> speed_a:float -> speed_b:float -> unit
-  val stop : t -> unit
+  val reset : t -> unit
 end = struct
   module Motor = struct
     type t =
-      { en : Gpio.t
-      ; pin1 : Gpio.t
-      ; pin2 : Gpio.t
+      { en : [ `output ] Gpio.t
+      ; pin1 : [ `output ] Gpio.t
+      ; pin2 : [ `output ] Gpio.t
       ; pwm : Gpio.pwm
       }
 
-    let stop t =
+    let reset t =
       Gpio.output t.en 0;
       Gpio.output t.pin1 0;
       Gpio.output t.pin2 0
@@ -65,15 +62,12 @@ end = struct
         | `A -> 7, 37, 40
         | `B -> 11, 13, 12
       in
-      let en = Gpio.create ~channel:en ~mode:`board in
-      let pin1 = Gpio.create ~channel:pin1 ~mode:`board in
-      let pin2 = Gpio.create ~channel:pin2 ~mode:`board in
-      Gpio.setup en `output `off;
-      Gpio.setup pin1 `output `off;
-      Gpio.setup pin2 `output `off;
+      let en = Gpio.create_output ~channel:en ~mode:`board in
+      let pin1 = Gpio.create_output ~channel:pin1 ~mode:`board in
+      let pin2 = Gpio.create_output ~channel:pin2 ~mode:`board in
       let pwm = Gpio.pwm_init en ~frequency:1000. in
       let t = { en; pin1; pin2; pwm } in
-      stop t;
+      reset t;
       t
 
     let forward t ~speed =
@@ -92,7 +86,7 @@ end = struct
 
     let move t ~speed =
       if Float.( = ) speed 0.
-      then stop t
+      then reset t
       else if Float.( > ) speed 0.
       then forward t ~speed
       else backward t ~speed:(-.speed)
@@ -112,9 +106,9 @@ end = struct
     Motor.move t.motor_a ~speed:speed_a;
     Motor.move t.motor_b ~speed:speed_b
 
-  let stop t =
-    Motor.stop t.motor_a;
-    Motor.stop t.motor_b
+  let reset t =
+    Motor.reset t.motor_a;
+    Motor.reset t.motor_b
 end
 
 let navigate () =
@@ -137,7 +131,7 @@ let navigate () =
     Motors.move motors ~speed_a ~speed_b
   done;
   Ultrasonic.close ultra;
-  Motors.stop motors
+  Motors.reset motors
 
 let mode = `navigate
 
@@ -148,7 +142,7 @@ let () =
     let motors = Motors.create () in
     Motors.move motors ~speed_a:100.0 ~speed_b:100.0;
     Unix.sleepf 3.;
-    Motors.stop motors
+    Motors.reset motors
   | `ultra ->
     let ultra = Ultrasonic.create () in
     Stdio.printf "Ultra created.\n";

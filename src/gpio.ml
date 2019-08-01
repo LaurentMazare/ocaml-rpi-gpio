@@ -159,7 +159,7 @@ module Rpi_info = struct
     | `v3 -> pin_to_gpio_rev3
 end
 
-type t = int
+type _ t = int
 
 let create ~channel ~mode =
   Gpio_bindings.setup ();
@@ -193,6 +193,17 @@ let setup t direction pud =
   in
   Gpio_bindings.setup_gpio t direction pud
 
+let create_input ~channel ~mode =
+  let t = create ~channel ~mode in
+  setup t `input `off;
+  t
+
+let create_output ~channel ~mode =
+  let t = create ~channel ~mode in
+  setup t `output `off;
+  t
+
+let close t = setup t `input `off
 let input t = Gpio_bindings.input_gpio t
 let output t v = Gpio_bindings.output_gpio t v
 
@@ -206,6 +217,7 @@ let with_pwm t ~f =
   Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> Gpio_bindings.pwm_stop t)
 
 let pwm_init t ~frequency =
+  if pwm_exists t then failwith "a pwm already exists on this channel";
   Gpio_bindings.pwm_set_frequency t frequency;
   t
 
